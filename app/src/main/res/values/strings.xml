@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">RemoteSoundServer</string>
+    <string name="hello">Hello!</string>
+    <string name="playing">Playing</string>
+    <string name="paused">Paused</string>
+    <string name="stopped">Stopped</string>
+</resources>
