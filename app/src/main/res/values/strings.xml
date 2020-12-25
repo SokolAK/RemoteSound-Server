@@ -1,7 +1,12 @@
 <resources>
     <string name="app_name">RemoteSoundServer</string>
     <string name="hello">Hello!</string>
+    <string name="status">Status</string>
     <string name="playing">Playing</string>
     <string name="paused">Paused</string>
     <string name="stopped">Stopped</string>
+    <string name="repeat">Repeat</string>
+    <string name="connected">Connected</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="connect">Connect</string>
 </resources>

@@ -5,16 +5,21 @@ import android.app.Activity;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+@SuppressLint("SetTextI18n")
 public class Player {
     private final Activity activity;
     private Status status = Status.STOPPED;
@@ -23,6 +28,8 @@ public class Player {
     private final SoundButton button1 = new SoundButton();
     private final SoundButton button2 = new SoundButton();
     private final SoundButton button3 = new SoundButton();
+    private EditText etRepeat;
+    private TextView tvRepeat;
     private ImageButton buttonForward;
     private ImageButton buttonBackward;
     private ImageButton buttonStop;
@@ -41,13 +48,20 @@ public class Player {
         tvPlayerStatus = activity.findViewById(R.id.playerStatus);
         tvTime = activity.findViewById(R.id.time);
 
-        buttons = List.of(button1, button2, button3);
+        buttons = Arrays.asList(button1, button2, button3);
         prepareButtons();
         prepareControlButtons();
+        prepareRepeat();
 
 
         timeHandler = new Handler();
         timeHandler.postDelayed(updateSoundTime, 0);
+    }
+
+    private void prepareRepeat() {
+        etRepeat = activity.findViewById(R.id.repeatValue);
+        tvRepeat = activity.findViewById(R.id.repeatLabel);
+        tvRepeat.setText(activity.getString(R.string.repeat) + ":");
     }
 
     private void prepareButtons() {
@@ -138,19 +152,24 @@ public class Player {
     }
 
     private void stop() {
-        mediaPlayer.stop();
-        try {
-            mediaPlayer.prepare();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (mediaPlayer != null) {
+            //mediaPlayer.stop();
+            //mediaPlayer.release();
+            mediaPlayer.pause();
+            mediaPlayer.seekTo(0);
+//            try {
+//                mediaPlayer.prepare();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+            status = Status.STOPPED;
+            updateStatusText();
+            refreshButtons();
         }
-        status = Status.STOPPED;
-        updateStatusText();
-        refreshButtons();
     }
 
     private void refreshButtons() {
-        for(SoundButton soundButton : buttons) {
+        for (SoundButton soundButton : buttons) {
             soundButton.getButton().setText(soundButton.getSound().getSoundName());
         }
     }
@@ -188,8 +207,15 @@ public class Player {
                         TimeUnit.MILLISECONDS.toSeconds(time) -
                                 TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time)))
                 );
-                if(time <= 10) {
-                    stop();
+                if (time <= 10) {
+                    if (Integer.parseInt(etRepeat.getText().toString()) <= 1) {
+                        stop();
+                    } else {
+                        int repeatTime = Integer.parseInt(etRepeat.getText().toString());
+                        etRepeat.setText(String.valueOf(repeatTime - 1));
+                        mediaPlayer.seekTo(0);
+                        mediaPlayer.start();
+                    }
                 }
             }
             timeHandler.postDelayed(this, 200);
@@ -212,7 +238,6 @@ public class Player {
         public void run() {
             int time = mediaPlayer.getCurrentPosition();
             time = Math.max(time - TIMESTEP, 0);
-            mediaPlayer.seekTo(time);
             mediaPlayer.seekTo(time);
             rewindHandler.postDelayed(this, 200);
         }
