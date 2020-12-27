@@ -69,9 +69,9 @@ public class Player {
         button2.setButton(activity.findViewById(R.id.button2));
         button3.setButton(activity.findViewById(R.id.button3));
 
-        button1.setSound(new Sound(R.raw.s1, "s1"));
-        button2.setSound(new Sound(R.raw.s2, "s2"));
-        button3.setSound(new Sound(R.raw.s3, "s3"));
+        button1.setSound(new Sound(R.raw.dog1, "dog1"));
+        button2.setSound(new Sound(R.raw.dog1, "dog2"));
+        button3.setSound(new Sound(R.raw.dog1, "dog3"));
 
         for (SoundButton soundButton : buttons) {
             soundButton.getButton().setOnClickListener(b -> {
@@ -225,21 +225,25 @@ public class Player {
     private final Runnable rewindForward = new Runnable() {
         @Override
         public void run() {
-            int time = mediaPlayer.getCurrentPosition();
-            int maxTime = mediaPlayer.getDuration();
-            time = Math.min(time + TIMESTEP, maxTime);
-            mediaPlayer.seekTo(time);
-            rewindHandler.postDelayed(this, 200);
+            if (mediaPlayer != null) {
+                int time = mediaPlayer.getCurrentPosition();
+                int maxTime = mediaPlayer.getDuration();
+                time = Math.min(time + TIMESTEP, maxTime);
+                mediaPlayer.seekTo(time);
+                rewindHandler.postDelayed(this, 200);
+            }
         }
     };
 
     private final Runnable rewindBackward = new Runnable() {
         @Override
         public void run() {
-            int time = mediaPlayer.getCurrentPosition();
-            time = Math.max(time - TIMESTEP, 0);
-            mediaPlayer.seekTo(time);
-            rewindHandler.postDelayed(this, 200);
+            if (mediaPlayer != null) {
+                int time = mediaPlayer.getCurrentPosition();
+                time = Math.max(time - TIMESTEP, 0);
+                mediaPlayer.seekTo(time);
+                rewindHandler.postDelayed(this, 200);
+            }
         }
     };
 }
