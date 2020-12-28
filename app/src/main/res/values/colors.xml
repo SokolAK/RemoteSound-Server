@@ -8,5 +8,6 @@
     <color name="colorBackDark">#000000</color>
     <color name="colorButton">#2196F3</color>
     <color name="colorButton2">#4CAF50</color>
+    <color name="colorButton3">#FF5722</color>
 
 </resources>

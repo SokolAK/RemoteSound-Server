@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">RemoteSoundServer</string>
+    <string name="app_name">RS Server</string>
     <string name="hello">Hello!</string>
     <string name="status">Status</string>
     <string name="playing">Playing</string>
@@ -9,4 +9,9 @@
     <string name="connected">Connected</string>
     <string name="disconnected">Disconnected</string>
     <string name="connect">Connect</string>
+
+    <string name="dog1">Dog1</string>
+    <string name="dog2">Dog2</string>
+    <string name="door1">Door1</string>
+
 </resources>

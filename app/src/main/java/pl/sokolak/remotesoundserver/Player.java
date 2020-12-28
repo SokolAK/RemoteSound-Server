@@ -3,12 +3,15 @@ package pl.sokolak.remotesoundserver;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -19,7 +22,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import lombok.Getter;
+
 @SuppressLint("SetTextI18n")
+@Getter
 public class Player {
     private final Activity activity;
     private Status status = Status.STOPPED;
@@ -28,13 +34,17 @@ public class Player {
     private final SoundButton button1 = new SoundButton();
     private final SoundButton button2 = new SoundButton();
     private final SoundButton button3 = new SoundButton();
+    private final SoundButton button4 = new SoundButton();
+    private final SoundButton button5 = new SoundButton();
+    private final SoundButton button6 = new SoundButton();
     private EditText etRepeat;
     private TextView tvRepeat;
-    private ImageButton buttonForward;
-    private ImageButton buttonBackward;
+    private ImageButton buttonForward, buttonBackward;
     private ImageButton buttonStop;
+    private ImageButton volumeDownButton, volumeUpButton;
     private TextView tvPlayerStatus;
     private TextView tvTime;
+    private TextView tvVolume;
     private Handler timeHandler;
     private Handler rewindHandler;
     private List<SoundButton> buttons = new ArrayList<>();
@@ -52,14 +62,21 @@ public class Player {
         prepareButtons();
         prepareControlButtons();
         prepareRepeat();
+        prepareVolumeControl();
 
-
-        timeHandler = new Handler();
-        timeHandler.postDelayed(updateSoundTime, 0);
+        controlTimeUpdate(true);
     }
 
     private void prepareRepeat() {
         etRepeat = activity.findViewById(R.id.repeatValue);
+        etRepeat.clearFocus();
+        etRepeat.setOnEditorActionListener((v, actionId, event) -> {
+            if(actionId == EditorInfo.IME_ACTION_DONE){
+                etRepeat.clearFocus();
+            }
+            return false;
+        });
+
         tvRepeat = activity.findViewById(R.id.repeatLabel);
         tvRepeat.setText(activity.getString(R.string.repeat) + ":");
     }
@@ -68,10 +85,13 @@ public class Player {
         button1.setButton(activity.findViewById(R.id.button1));
         button2.setButton(activity.findViewById(R.id.button2));
         button3.setButton(activity.findViewById(R.id.button3));
+        button4.setButton(activity.findViewById(R.id.button4));
+        button5.setButton(activity.findViewById(R.id.button5));
+        button6.setButton(activity.findViewById(R.id.button6));
 
-        button1.setSound(new Sound(R.raw.dog1, "dog1"));
-        button2.setSound(new Sound(R.raw.dog1, "dog2"));
-        button3.setSound(new Sound(R.raw.dog1, "dog3"));
+        button1.setSound(new Sound(R.raw.dog1, activity.getString(R.string.dog1)));
+        button2.setSound(new Sound(R.raw.dog2, activity.getString(R.string.dog2)));
+        button3.setSound(new Sound(R.raw.door1, activity.getString(R.string.door1)));
 
         for (SoundButton soundButton : buttons) {
             soundButton.getButton().setOnClickListener(b -> {
@@ -147,24 +167,32 @@ public class Player {
                 status = Status.PLAYING;
             }
         }
+
         updateStatusText();
         refreshButtons();
     }
 
     private void stop() {
         if (mediaPlayer != null) {
-            //mediaPlayer.stop();
-            //mediaPlayer.release();
             mediaPlayer.pause();
             mediaPlayer.seekTo(0);
-//            try {
-//                mediaPlayer.prepare();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
             status = Status.STOPPED;
+
             updateStatusText();
             refreshButtons();
+        }
+    }
+
+    private void controlTimeUpdate(boolean run) {
+        if(!run) {
+            if (timeHandler != null) {
+                timeHandler.removeCallbacks(updateSoundTime);
+                timeHandler = null;
+            }
+        }
+        else {
+            timeHandler = new Handler();
+            timeHandler.postDelayed(updateSoundTime, 0);
         }
     }
 
@@ -191,12 +219,6 @@ public class Player {
         tvPlayerStatus.setText(status);
     }
 
-    enum Status {
-        PLAYING,
-        STOPPED,
-        PAUSED
-    }
-
     private final Runnable updateSoundTime = new Runnable() {
         @SuppressLint("DefaultLocale")
         public void run() {
@@ -218,7 +240,7 @@ public class Player {
                     }
                 }
             }
-            timeHandler.postDelayed(this, 200);
+            timeHandler.postDelayed(this, 1000);
         }
     };
 
@@ -246,4 +268,29 @@ public class Player {
             }
         }
     };
+
+    private void prepareVolumeControl() {
+        AudioManager audioManager = (AudioManager) activity.getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+
+        tvVolume = activity.findViewById(R.id.volumeValue);
+        tvVolume.setText(String.valueOf(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
+
+        volumeUpButton = activity.findViewById(R.id.volumeUp);
+        volumeUpButton.setOnClickListener(v -> {
+            audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, AudioManager.FLAG_PLAY_SOUND);
+            tvVolume.setText(String.valueOf(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
+        });
+
+        volumeDownButton = activity.findViewById(R.id.volumeDown);
+        volumeDownButton.setOnClickListener(v -> {
+            audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_LOWER, AudioManager.FLAG_PLAY_SOUND);
+            tvVolume.setText(String.valueOf(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
+        });
+    }
+
+    enum Status {
+        PLAYING,
+        STOPPED,
+        PAUSED
+    }
 }

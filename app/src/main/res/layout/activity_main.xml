@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/colorBackDark"
-    android:screenOrientation="portrait"
     tools:context=".MainActivity">
 
     <LinearLayout
@@ -49,6 +48,11 @@
             android:layout_height="wrap_content"
             android:text="@string/disconnected"
             android:textColor="@color/colorText" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorText" />
 
         <TextView
             android:id="@+id/tvMessages"
@@ -99,7 +103,7 @@
         android:id="@+id/repeat"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/controlButtons"
+        app:layout_constraintBottom_toTopOf="@+id/volumeButtons"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:orientation="horizontal">
@@ -122,11 +126,47 @@
             android:textColor="@color/colorText" />
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/volumeButtons"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        app:layout_constraintBottom_toTopOf="@+id/controlButtons"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageButton
+            android:id="@+id/volumeDown"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="2dp"
+            android:backgroundTint="@color/colorButton3"
+            android:src="@drawable/ic_baseline_volume_down_24" />
+
+        <TextView
+            android:id="@+id/volumeValue"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:text="0"
+            android:textColor="@color/colorButton3" />
+
+        <ImageButton
+            android:id="@+id/volumeUp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="2dp"
+            android:backgroundTint="@color/colorButton3"
+            android:src="@drawable/ic_baseline_volume_up_24" />
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/controlButtons"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         app:layout_constraintBottom_toTopOf="@+id/buttons1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -134,7 +174,7 @@
         <ImageButton
             android:id="@+id/buttonBackward"
             android:layout_width="0dp"
-            android:layout_height="50dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_marginHorizontal="2dp"
             android:backgroundTint="@color/colorButton2"
@@ -143,7 +183,7 @@
         <ImageButton
             android:id="@+id/buttonStop"
             android:layout_width="0dp"
-            android:layout_height="50dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_marginHorizontal="2dp"
             android:backgroundTint="@color/colorButton2"
@@ -152,13 +192,11 @@
         <ImageButton
             android:id="@+id/buttonForward"
             android:layout_width="0dp"
-            android:layout_height="50dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_marginHorizontal="2dp"
             android:backgroundTint="@color/colorButton2"
             android:src="@android:drawable/ic_media_ff" />
-
-
     </LinearLayout>
 
     <LinearLayout
@@ -177,6 +215,7 @@
             android:layout_marginHorizontal="5dp"
             android:layout_weight="1"
             android:backgroundTint="@color/colorButton"
+            android:textSize="16sp"
             android:text="1" />
 
         <Button
@@ -186,6 +225,7 @@
             android:layout_marginHorizontal="5dp"
             android:layout_weight="1"
             android:backgroundTint="@color/colorButton"
+            android:textSize="16sp"
             android:text="2" />
 
         <Button
@@ -195,6 +235,7 @@
             android:layout_marginHorizontal="5dp"
             android:layout_weight="1"
             android:backgroundTint="@color/colorButton"
+            android:textSize="16sp"
             android:text="3" />
     </LinearLayout>
 

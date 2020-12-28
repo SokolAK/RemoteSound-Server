@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity {
         player.init();
 
         ServerConnector serverConnector = new ServerConnector(this);
-        serverConnector.init();
+        serverConnector.init(player);
     }
 
 }
