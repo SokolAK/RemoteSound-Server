@@ -6,17 +6,12 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Handler;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -65,6 +60,8 @@ public class Player {
         prepareVolumeControl();
 
         controlTimeUpdate(true);
+
+        etRepeat.clearFocus();
     }
 
     private void prepareRepeat() {

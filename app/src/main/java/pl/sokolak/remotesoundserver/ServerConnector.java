@@ -2,13 +2,11 @@ package pl.sokolak.remotesoundserver;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.media.MediaPlayer;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.view.MotionEvent;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -35,7 +33,7 @@ import static android.content.Context.WIFI_SERVICE;
 public class ServerConnector {
     private final Activity activity;
     public static String SERVER_IP = "";
-    public static int SERVER_PORT = 8080;
+    public static int SERVER_PORT = 50000;
     private TextView tvIP, tvPort, tvConnection;
     private ServerSocket serverSocket;
     private Thread threadConnection = null;
@@ -68,8 +66,8 @@ public class ServerConnector {
 
         //tvIP.setText("IP: " + SERVER_IP);
 
-        sendStatusHandler = new Handler();
-        sendStatusHandler.postDelayed(sendStatus, 0);
+//        sendStatusHandler = new Handler();
+//        sendStatusHandler.postDelayed(sendStatus, 0);
     }
 
     private String getLocalIpAddress() throws UnknownHostException {
@@ -94,19 +92,24 @@ public class ServerConnector {
                     tvIP.setText("IP: " + SERVER_IP);
                     tvPort.setText("Port: " + SERVER_PORT);
 
-//                    if(sendStatus != null) {
-//                        sendStatusHandler.removeCallbacks(sendStatus);
-//                        sendStatusHandler = null;
-//                    }
+                    if(sendStatusHandler != null) {
+                        sendStatusHandler.removeCallbacks(sendStatus);
+                        sendStatusHandler = null;
+                    }
 
                 });
                 try {
                     socket = serverSocket.accept();
-                    output = new PrintWriter(socket.getOutputStream());
+                    output = new PrintWriter(socket.getOutputStream(), true);
                     input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     connectionStatus = ConnectionStatus.CONNECTED;
                     String stat = activity.getString(R.string.status) + ": " + activity.getString(R.string.connected);
                     activity.runOnUiThread(() -> tvConnection.setText(stat));
+
+                    activity.runOnUiThread(() -> {
+                        sendStatusHandler = new Handler();
+                        sendStatusHandler.postDelayed(sendStatus, 0);
+                    });
 
                     new Thread(new ThreadRead()).start();
 
@@ -122,13 +125,11 @@ public class ServerConnector {
     private class ThreadRead implements Runnable {
         @Override
         public void run() {
-            while (true) {
+            while (input != null) {
                 try {
                     String message = input.readLine();
                     if (message == null) {
-                        serverSocket.close();
-                        threadConnection = new Thread(new ThreadConnection());
-                        threadConnection.start();
+                        reconnect();
                         break;
                     } else {
                         activity.runOnUiThread(() -> {
@@ -184,13 +185,30 @@ public class ServerConnector {
 
                 if (output != null) {
                     output.println(message.toString());
-                    output.flush();
+                    //output.flush();
                 }
+                @SuppressLint("SimpleDateFormat") DateFormat df = new SimpleDateFormat("HH:mm:ss");
+                String time = df.format(Calendar.getInstance().getTime());
+                activity.runOnUiThread(() -> tvMessages.setText("Server [" + time + "]:\n" + message));
                 sendStatusHandler.postDelayed(this, 500);
             }
         }
     };
 
+    @SneakyThrows
+    private void reconnect() {
+        if(serverSocket != null) {
+            serverSocket.close();
+        }
+        if (input != null) {
+            input.close();
+        }
+        if (output != null) {
+            output.close();
+        }
+        threadConnection = new Thread(new ThreadConnection());
+        threadConnection.start();
+    }
 
     @SneakyThrows
     private void performAction(String message) {
